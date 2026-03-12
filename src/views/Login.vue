@@ -65,8 +65,16 @@
             </button>
           </form>
 
+          <div class="divider">
+            <span class="divider-text">or</span>
+          </div>
+
+          <button class="btn btn-secondary w-full create-account-btn" @click="handleCreateAccount">
+            Create Account
+          </button>
+
           <p class="mt-lg text-center text-muted text-body-sm">
-            Don't have an account? <a href="#" class="font-bold color-primary">Contact your administrator</a>
+            Don't have an account? <a href="#" class="font-bold color-primary" @click.prevent="handleCreateAccount">Contact your administrator</a>
           </p>
         </div>
       </div>
@@ -94,6 +102,13 @@ const handleLogin = async () => {
       router.push('/student');
     }
   }
+};
+
+const handleCreateAccount = () => {
+  // Navigate to registration page or open registration modal
+  router.push('/register');
+  // Or if you want to keep the existing behavior:
+  // window.location.href = 'mailto:admin@quizvista.com';
 };
 </script>
 
@@ -142,6 +157,47 @@ const handleLogin = async () => {
 .font-bold { font-weight: 600; }
 .color-primary { color: var(--color-primary); }
 .gap-xs { gap: 0.5rem; }
+
+/* Divider styles */
+.divider {
+  margin: 1.5rem 0;
+  text-align: center;
+  position: relative;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: rgba(2, 52, 48, 0.15);
+}
+
+.divider-text {
+  position: relative;
+  background-color: var(--color-bg-white);
+  padding: 0 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Create account button */
+.create-account-btn {
+  background-color: transparent;
+  border: 2px solid var(--color-secondary);
+  color: var(--color-primary);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.create-account-btn:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-bg-white);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 201, 177, 0.3);
+}
 
 /* Abstract Illustration */
 .login-illustration {
