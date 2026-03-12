@@ -31,17 +31,17 @@
 <script setup>
 const reviews = [
   {
-    name: 'Sarah Mitchell',
+    name: 'Muhire Hillary',
     role: 'teacher',
     text: 'Creating quizzes used to take hours of formatting. QuizVista allows me to build beautiful assessments in minutes. My students love the interface!'
   },
   {
-    name: 'James L.',
+    name: 'Celestin N.',
     role: 'student',
     text: 'The best platform I’ve used for midterms. No clutter, fast load times, and it looks incredible compared to our old portal.'
   },
   {
-    name: 'Dr. Alistair',
+    name: 'Instructor. Nono',
     role: 'teacher',
     text: 'The analytics and ease of use are unmatched. It feels premium and makes grading feel less like a chore.'
   }

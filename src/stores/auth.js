@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 
 // Mock DB
 const MOCK_USERS = {
-  'teacher@quiz.com': { password: 'password', role: 'teacher', name: 'Mrs. Smith' },
-  'student@quiz.com': { password: 'password', role: 'student', name: 'John Doe' }
+  'teacher@quiz.com': { password: '25291', role: 'teacher', name: 'Mrs. Nono' },
+  'student@quiz.com': { password: '25291', role: 'student', name: 'Hillary 25291' }
 };
 
 const AUTH_KEY = 'quiz_app_auth';
