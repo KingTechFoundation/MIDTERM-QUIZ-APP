@@ -107,9 +107,16 @@
         </div>
       </div>
 
+      <!-- Validation Error -->
+      <transition name="fade">
+        <div v-if="validationError" class="error-banner mb-sm" role="alert">
+          {{ validationError }}
+        </div>
+      </transition>
+
       <!-- Submit -->
       <div class="border-t pt-md mt-md flex-end">
-        <button type="submit" class="btn btn-primary" :disabled="form.questions.length === 0 || isLoading">
+        <button type="submit" class="btn btn-primary" :disabled="isLoading">
           {{ isLoading ? 'Saving...' : (isEditing ? 'Save Changes' : 'Create Quiz') }}
         </button>
       </div>
@@ -161,7 +168,27 @@ const removeQuestion = (index) => {
   form.value.questions.splice(index, 1);
 };
 
+const validationError = ref('');
+
 const saveQuiz = () => {
+  validationError.value = '';
+  
+  if (!form.value.title.trim()) {
+    validationError.value = 'Please provide a quiz title.';
+    return;
+  }
+  
+  if (form.value.questions.length === 0) {
+    validationError.value = 'You must add at least one question.';
+    return;
+  }
+  
+  const incompleteQuestion = form.value.questions.some(q => !q.text.trim() || q.options.some(opt => !opt.trim()));
+  if (incompleteQuestion) {
+    validationError.value = 'Please fill in all question texts and options.';
+    return;
+  }
+
   // Deep copy for saving
   emit('save', JSON.parse(JSON.stringify(form.value)));
 };

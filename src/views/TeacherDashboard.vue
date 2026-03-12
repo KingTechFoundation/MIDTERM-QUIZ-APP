@@ -8,7 +8,15 @@
       <button @click="logout" class="btn btn-outline">Sign Out</button>
     </header>
 
-    <main class="dashboard-main">
+    <main class="dashboard-main position-relative">
+      <!-- Loading State Overlay -->
+      <transition name="fade">
+        <div v-if="isLoading" class="loading-overlay flex-center">
+          <div class="loader"></div>
+          <p class="ml-sm font-bold color-primary">Saving Changes...</p>
+        </div>
+      </transition>
+
       <!-- Conditional Rendering for List or Form -->
       <transition name="fade" mode="out-in">
         <div v-if="view === 'list'">

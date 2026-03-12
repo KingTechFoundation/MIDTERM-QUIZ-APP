@@ -8,7 +8,15 @@
       <button @click="logout" class="btn btn-outline">Sign Out</button>
     </header>
 
-    <main class="dashboard-main">
+    <main class="dashboard-main position-relative">
+      <!-- Loading State Overlay -->
+      <transition name="fade">
+        <div v-if="isLoading" class="loading-overlay flex-center">
+          <div class="loader"></div>
+          <p class="ml-sm font-bold color-primary">Loading Quiz...</p>
+        </div>
+      </transition>
+
       <!-- Conditional Rendering for List or Runner -->
       <transition name="fade" mode="out-in">
         <div v-if="view === 'list'">
@@ -42,9 +50,15 @@ const quizStore = useQuizStore();
 
 const view = ref('list'); // 'list' or 'runner'
 const activeQuiz = ref(null);
+const isLoading = ref(false);
 
-const handleTake = (id) => {
+const handleTake = async (id) => {
+  isLoading.value = true;
+  // Simulate fetching quiz data
+  await new Promise(resolve => setTimeout(resolve, 600));
+  
   activeQuiz.value = quizStore.getQuizById(id);
+  isLoading.value = false;
   view.value = 'runner';
 };
 

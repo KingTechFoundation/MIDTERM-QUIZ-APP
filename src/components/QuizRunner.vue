@@ -62,16 +62,24 @@
           :disabled="selectedOptionIndex === null"
           :aria-label="isLastQuestion ? 'Finish the quiz and see results' : 'Go to next question'"
         >
-          {{ isLastQuestion ? 'Finish Quiz' : 'Next Question' }}
+          {{ isLastQuestion ? 'Submit Quiz' : 'Next Question' }}
         </button>
       </div>
+    </div>
+
+    <!-- Submitting View -->
+    <div v-else-if="state === 'submitting'" class="quiz-submitting text-center py-xl animate-fade-in">
+      <div class="loader-lg mx-auto mb-lg"></div>
+      <h2 class="text-h2 color-primary mb-sm">Submitting your answers...</h2>
+      <div class="percentage-display text-h1 color-accent">{{ submissionPercent }}%</div>
+      <p class="text-muted mt-sm">Analyzing your performance...</p>
     </div>
 
     <!-- Results View -->
     <div v-else-if="state === 'finished'" class="quiz-results text-center animate-slide-up">
       <div class="result-icon mb-md">🏆</div>
-      <h2 class="text-h2 color-primary mb-sm">Quiz Completed!</h2>
-      <p class="text-body-lg text-muted mb-lg">You've successfully finished the <strong>{{ quiz.title }}</strong> assessment.</p>
+      <h2 class="text-h2 color-primary mb-sm">Incredible Work, {{ authStore.user?.name || 'Scholar' }}!</h2>
+      <p class="text-body-lg text-muted mb-lg">Congratulations! You've successfully finished the <strong>{{ quiz.title }}</strong> assessment.</p>
       
       <div class="score-display mb-xl p-xl bg-light radius-lg border-accent">
         <span class="score-label block text-muted mb-xs">Your Final Score</span>
@@ -87,6 +95,8 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { triggerConfetti } from '../utils/confetti';
+import { useAuthStore } from '../stores/auth';
 
 const props = defineProps({
   quiz: {
@@ -96,12 +106,14 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['cancel', 'complete']);
+const authStore = useAuthStore();
 
-const state = ref('intro'); // 'intro', 'playing', 'finished'
+const state = ref('intro'); // 'intro', 'playing', 'submitting', 'finished'
 const currentQuestionIndex = ref(0);
 const selectedOptionIndex = ref(null);
 const userAnswers = ref([]);
 const score = ref(0);
+const submissionPercent = ref(0);
 
 const currentQuestion = computed(() => props.quiz.questions[currentQuestionIndex.value]);
 const isLastQuestion = computed(() => currentQuestionIndex.value === props.quiz.questions.length - 1);
@@ -122,12 +134,31 @@ const nextQuestion = () => {
   userAnswers.value.push(selectedOptionIndex.value);
   
   if (isLastQuestion.value) {
-    calculateScore();
-    state.value = 'finished';
+    submitQuiz();
   } else {
     currentQuestionIndex.value++;
     selectedOptionIndex.value = null;
   }
+};
+
+const submitQuiz = () => {
+  state.value = 'submitting';
+  
+  // Simulate percentage counting
+  let count = 0;
+  const interval = setInterval(() => {
+    count += Math.floor(Math.random() * 10) + 5;
+    if (count >= 100) {
+      count = 100;
+      clearInterval(interval);
+      setTimeout(() => {
+        calculateScore();
+        state.value = 'finished';
+        triggerConfetti();
+      }, 500);
+    }
+    submissionPercent.value = count;
+  }, 100);
 };
 
 const calculateScore = () => {
