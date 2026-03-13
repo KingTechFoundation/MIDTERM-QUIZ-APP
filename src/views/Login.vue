@@ -186,6 +186,38 @@ const handleSubmit = async () => {
   color: var(--color-accent);
 }
 
+/* Separator */
+.my-lg { margin-top: var(--space-lg); margin-bottom: var(--space-lg); }
+
+.separator-container {
+  width: 100%;
+}
+
+.separator-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: rgba(2, 52, 48, 0.1);
+}
+
+.separator-text {
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(10px);
+  opacity: 0;
+}
+
 .error-banner {
   background-color: rgba(255, 107, 74, 0.1);
   color: var(--color-accent);

@@ -11,9 +11,9 @@
         :aria-hidden="mobileMenuOpen ? 'false' : 'true'"
         id="main-navigation"
       >
-        <a href="#hero" @click="closeMenu">Home</a>
-        <a href="#vision" @click="closeMenu">Vision</a>
-        <a href="#testimonials" @click="closeMenu">Reviews</a>
+        <router-link to="/#hero" @click="closeMenu">Home</router-link>
+        <router-link to="/#vision" @click="closeMenu">Vision</router-link>
+        <router-link to="/#testimonials" @click="closeMenu">Reviews</router-link>
         
         <router-link to="/login" class="btn btn-primary login-btn" @click="closeMenu">
           Get Started
