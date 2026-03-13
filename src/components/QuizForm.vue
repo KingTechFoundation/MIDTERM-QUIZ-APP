@@ -20,7 +20,7 @@
             class="form-input" 
           />
         </div>
-        <div class="form-group">
+        <div class="form-group mb-sm">
           <label for="quiz-desc">Description (Optional)</label>
           <textarea 
             id="quiz-desc" 
@@ -29,6 +29,18 @@
             class="form-input" 
             rows="2"
           ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="quiz-time">Time Limit (Minutes)</label>
+          <input 
+            type="number" 
+            id="quiz-time" 
+            v-model.number="form.timeLimit" 
+            min="1"
+            max="180"
+            required
+            class="form-input" 
+          />
         </div>
       </div>
 
@@ -146,6 +158,7 @@ const isEditing = ref(!!props.initialData);
 const form = ref({
   title: '',
   description: '',
+  timeLimit: 10,
   questions: []
 });
 

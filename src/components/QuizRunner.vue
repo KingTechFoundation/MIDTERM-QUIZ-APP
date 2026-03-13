@@ -25,12 +25,19 @@
 
     <!-- Question View -->
     <div v-else-if="state === 'playing'" class="quiz-playing animate-slide-up" role="form">
-      <header class="playing-header flex-between mb-lg">
-        <span class="progress-text font-bold color-primary" aria-live="polite">
-          Question {{ currentQuestionIndex + 1 }} of {{ quiz.questions.length }}
-        </span>
-        <div class="progress-bar-container" role="progressbar" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100">
-          <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+      <header class="playing-header flex-between mb-lg bg-light p-sm radius-md border">
+        <div class="flex-center gap-sm">
+          <span class="progress-text font-bold color-primary" aria-live="polite">
+            {{ currentQuestionIndex + 1 }}/{{ quiz.questions.length }}
+          </span>
+          <div class="progress-bar-container" role="progressbar" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+          </div>
+        </div>
+        
+        <div class="timer-display flex-center gap-xs font-bold" :class="{ 'text-accent animate-pulse': isTimeLow }">
+          <span class="timer-icon">⏱️</span>
+          <span class="timer-text">{{ formattedTime }}</span>
         </div>
       </header>
 
@@ -114,14 +121,48 @@ const selectedOptionIndex = ref(null);
 const userAnswers = ref([]);
 const score = ref(0);
 const submissionPercent = ref(0);
+const timeLeft = ref(0);
+let timerInterval = null;
 
 const currentQuestion = computed(() => props.quiz.questions[currentQuestionIndex.value]);
 const isLastQuestion = computed(() => currentQuestionIndex.value === props.quiz.questions.length - 1);
 const progress = computed(() => ((currentQuestionIndex.value + 1) / props.quiz.questions.length) * 100);
 
+const formattedTime = computed(() => {
+  const minutes = Math.floor(timeLeft.value / 60);
+  const seconds = timeLeft.value % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+});
+
+const isTimeLow = computed(() => timeLeft.value > 0 && timeLeft.value <= 60);
+
 const startQuiz = () => {
+  timeLeft.value = (props.quiz.timeLimit || 10) * 60;
   state.value = 'playing';
+  startTimer();
 };
+
+const startTimer = () => {
+  timerInterval = setInterval(() => {
+    if (timeLeft.value > 0) {
+      timeLeft.value--;
+    } else {
+      clearInterval(timerInterval);
+      if (state.value === 'playing') {
+        // Pad answers for unreached questions
+        while (userAnswers.value.length < props.quiz.questions.length) {
+          userAnswers.value.push(null);
+        }
+        submitQuiz();
+      }
+    }
+  }, 1000);
+};
+
+import { onUnmounted } from 'vue';
+onUnmounted(() => {
+  if (timerInterval) clearInterval(timerInterval);
+});
 
 const selectOption = (index) => {
   selectedOptionIndex.value = index;
@@ -142,6 +183,7 @@ const nextQuestion = () => {
 };
 
 const submitQuiz = () => {
+  if (timerInterval) clearInterval(timerInterval);
   state.value = 'submitting';
   
   // Simulate percentage counting
@@ -333,5 +375,18 @@ const calculateScore = () => {
 .total {
   font-size: 2rem;
   opacity: 0.5;
+}
+.animate-pulse {
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .7; transform: scale(1.05); }
+}
+
+.timer-display {
+  min-width: 90px;
+  justify-content: flex-end;
 }
 </style>

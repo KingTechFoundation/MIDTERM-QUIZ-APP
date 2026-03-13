@@ -6,21 +6,21 @@ const QUIZ_STORAGE_KEY = 'quiz_app_quizzes';
 const INITIAL_QUIZZES = [
   {
     id: '1',
-    title: 'Web Technologies Midterm',
-    description: 'A comprehensive test on HTML, CSS, and modern JS frameworks.',
+    title: 'Vue JS Fundamentals',
+    description: 'Test your basic knowledge of Vue components and reactivity.',
+    timeLimit: 10,
     questions: [
-      {
-        id: 'q1',
-        text: 'What does CSS stand for?',
-        options: ['Cascading Style Sheets', 'Creative Style System', 'Computer Style Sheets', 'Colorful Style Sheets'],
-        correctAnswerIndex: 0
-      },
-      {
-        id: 'q2',
-        text: 'Which framework is maintained by Evan You?',
-        options: ['React', 'Angular', 'Vue', 'Svelte'],
-        correctAnswerIndex: 2
-      }
+      { id: '1-1', text: 'Which directive is used for two-way binding?', options: ['v-bind', 'v-model', 'v-on', 'v-if'], correctAnswerIndex: 1 },
+      { id: '1-2', text: 'What is the standard store for Vue?', options: ['Vuex', 'Pinia', 'Redux', 'MobX'], correctAnswerIndex: 1 }
+    ]
+  },
+  {
+    id: '2',
+    title: 'CSS Masterclass',
+    description: 'Advanced layout techniques with Flexbox and Grid.',
+    timeLimit: 5,
+    questions: [
+      { id: '2-1', text: 'Which property is used to create a flex container?', options: ['flex: 1', 'display: flex', 'float: left', 'align-items: center'], correctAnswerIndex: 1 }
     ]
   }
 ];
