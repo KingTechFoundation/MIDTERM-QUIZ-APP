@@ -4,18 +4,18 @@
 
 ---
 
-## 👥 Group Members
+##  Group Members
 *   **MUTIMUTUJE PIERRE CELESTIN** - 26161
 *   **MUHIRE HILLARY** - 25291
 
 ---
 
-## 🚀 Project Overview
+##  Project Overview
 **Quiz Vista** is a premium, dynamic web application designed to streamline the assessment process for both teachers and students. Built with a focus on human-centered design, it provides an intuitive interface for creating, managing, and taking interactive quizzes. The system features real-time performance tracking and a modern dashboard experience.
 
 ---
 
-## ✨ Key Features
+##  Key Features
 *   **Dynamic Dashboards:** Separate, tailored experiences for Teachers and Students with real-time statistics.
 *   **Timed Assessments:** Teacher-configurable quiz durations with live countdown timers and auto-submission.
 *   **Performance Analytics:** Students can track their achievement history, average scores, and progress over time.
@@ -24,7 +24,7 @@
 
 ---
 
-## 📸 Project Gallery
+## Project Gallery
 
 ### 1. The Landing Page
 The gateway to Quiz Vista, featuring a modern hero slider and smooth-scrolling navigation.
@@ -49,7 +49,7 @@ Students can browse available quizzes and track their progress through dynamic s
 
 ---
 
-## 🛡️ Secure Design & Threat Modeling
+##  Secure Design & Threat Modeling
 
 ### 1. Assets to Protect
 *   **User Credentials:** Protecting passwords and email addresses from theft.
@@ -77,7 +77,7 @@ Security was considered as a core component by choosing **Pinia** for centralize
 
 ---
 
-## 💻 Secure Coding Decisions
+##  Secure Coding Decisions
 
 ### 1. Avoiding Inline HTML Injection
 We avoided using `v-html` or direct DOM manipulation. By using standard Vue interpolation (`{{ }}`), we ensure that any text entered by users is treated solely as data and never executed as code.
@@ -90,7 +90,7 @@ Password fields use `type="password"` to prevent shoulder surfing. Furthermore, 
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 *   **Framework:** Vue 3
 *   **State Management:** Pinia
 *   **Routing:** Vue Router
