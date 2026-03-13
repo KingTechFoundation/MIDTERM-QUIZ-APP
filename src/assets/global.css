@@ -263,14 +263,46 @@ button {
 }
 
 .py-xl { padding-top: var(--space-xl); padding-bottom: var(--space-xl); }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
 .ml-sm { margin-left: var(--space-sm); }
+
+/* Dashboard Layout */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg-light);
+}
+
+.sidebar-wrapper {
+  width: 260px;
+  background-color: var(--color-bg-white);
+  border-right: 1px solid rgba(2, 52, 48, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 1000;
+}
+
+.dashboard-content {
+  flex-grow: 1;
+  margin-left: 260px;
+  padding: var(--space-xl);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+@media (max-width: 992px) {
+  .sidebar-wrapper {
+    display: none;
+  }
+  .dashboard-content {
+    margin-left: 0;
+    padding: var(--space-lg);
+  }
+}

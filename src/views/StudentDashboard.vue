@@ -1,96 +1,148 @@
 <template>
-  <div class="dashboard container pt-nav section">
-    <header class="dashboard-header mb-xl flex-between">
-      <div>
-        <h1 class="text-h2 dashboard-title">Student <span class="accent">Portal</span></h1>
-        <p class="text-body-lg text-muted">Ready to learn, {{ authStore.user?.name || 'Student' }}?</p>
+  <div class="dashboard-layout">
+    <DashboardSidebar>
+      <template #nav-links>
+        <a href="#" class="router-link-active">Dashboard</a>
+        <a href="#" @click.prevent="view = 'list'">Take Quiz</a>
+        <a href="#" @click.prevent="view = 'stats'">My Progress</a>
+      </template>
+    </DashboardSidebar>
+
+    <main class="dashboard-content">
+      <header class="dashboard-header mb-lg flex-between">
+        <div>
+          <h1 class="text-h3">Student Portal</h1>
+          <p class="text-body-sm text-muted">Track your learning progress and take new assessments.</p>
+        </div>
+      </header>
+
+      <!-- Stats Grid -->
+      <div v-if="view !== 'runner'" class="stats-grid animate-fade-in">
+        <StatCard 
+          label="Quizzes Taken" 
+          :value="quizStore.totalTaken(userId)" 
+          subtext="Total completed attempts"
+          delay="0.1s"
+        />
+        <StatCard 
+          label="Average Score" 
+          :value="quizStore.averageScore(userId) + '%'" 
+          subtext="Your overall performance" 
+          trend="+2%"
+          trendType="up"
+          delay="0.2s"
+        />
+        <StatCard 
+          label="Completion" 
+          :value="completionPercent + '%'" 
+          subtext="Target goal reached" 
+          delay="0.3s"
+        />
       </div>
-      <button @click="logout" class="btn btn-outline">Sign Out</button>
-    </header>
 
-    <main class="dashboard-main position-relative">
-      <!-- Loading State Overlay -->
-      <transition name="fade">
-        <div v-if="isLoading" class="loading-overlay flex-center">
-          <div class="loader"></div>
-          <p class="ml-sm font-bold color-primary">Loading Quiz...</p>
-        </div>
-      </transition>
+      <div class="dashboard-main position-relative">
+        <!-- Loading State Overlay -->
+        <transition name="fade">
+          <div v-if="isLoading" class="loading-overlay flex-center">
+            <div class="loader"></div>
+            <p class="ml-sm font-bold color-primary">Loading Quiz...</p>
+          </div>
+        </transition>
 
-      <!-- Conditional Rendering for List or Runner -->
-      <transition name="fade" mode="out-in">
-        <div v-if="view === 'list'">
-          <QuizList 
-            @take="handleTake" 
-          />
-        </div>
-        <div v-else-if="view === 'runner'">
-          <QuizRunner 
-            :quiz="activeQuiz" 
-            @cancel="view = 'list'" 
-            @complete="handleComplete" 
-          />
-        </div>
-      </transition>
+        <!-- Conditional Rendering -->
+        <transition name="fade" mode="out-in">
+          <div v-if="view === 'list'">
+            <div class="flex-between mb-md">
+              <h2 class="text-h4">Available Quizzes</h2>
+            </div>
+            <QuizList @take="handleTake" />
+          </div>
+          <div v-else-if="view === 'runner'">
+            <QuizRunner 
+              :quiz="activeQuiz" 
+              @cancel="view = 'list'" 
+              @complete="handleComplete" 
+            />
+          </div>
+          <div v-else-if="view === 'stats'">
+            <div class="p-lg bg-white radius-md border animate-slide-up">
+              <h3 class="text-h4 mb-md">Achievement History</h3>
+              <div v-if="quizStore.userResults(userId).length === 0" class="text-center py-xl">
+                <p class="text-muted">No records found. Start your first quiz!</p>
+              </div>
+              <ul v-else class="results-list">
+                <li v-for="res in quizStore.userResults(userId)" :key="res.id" class="p-md border-b flex-between">
+                  <div>
+                    <div class="font-bold">{{ res.quizTitle }}</div>
+                    <div class="text-xs text-muted">{{ new Date(res.timestamp).toLocaleDateString() }}</div>
+                  </div>
+                  <div class="text-h4 color-primary">{{ res.score }}%</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </transition>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useQuizStore } from '../stores/quizzes';
 import QuizList from '../components/QuizList.vue';
 import QuizRunner from '../components/QuizRunner.vue';
+import DashboardSidebar from '../components/DashboardSidebar.vue';
+import StatCard from '../components/StatCard.vue';
 
-const router = useRouter();
 const authStore = useAuthStore();
 const quizStore = useQuizStore();
 
-const view = ref('list'); // 'list' or 'runner'
+const view = ref('list'); // 'list', 'runner', 'stats'
 const activeQuiz = ref(null);
 const isLoading = ref(false);
 
+const userId = computed(() => authStore.user?.id);
+const completionPercent = computed(() => {
+  const total = quizStore.totalQuizzes;
+  if (!total) return 0;
+  const taken = quizStore.totalTaken(userId.value);
+  return Math.min(Math.round((taken / total) * 100), 100);
+});
+
 const handleTake = async (id) => {
   isLoading.value = true;
-  // Simulate fetching quiz data
   await new Promise(resolve => setTimeout(resolve, 600));
-  
   activeQuiz.value = quizStore.getQuizById(id);
   isLoading.value = false;
   view.value = 'runner';
 };
 
 const handleComplete = (result) => {
-  console.log('Quiz completed!', result);
-  // In a real app we might save this to a backend or a separate store
-};
-
-const logout = () => {
-  authStore.logout();
-  router.push('/login');
+  quizStore.saveResult({
+    userId: userId.value,
+    quizId: result.quizId,
+    quizTitle: result.quizTitle,
+    score: result.score
+  });
+  view.value = 'stats';
 };
 </script>
 
 <style scoped>
-.dashboard {
+.dashboard-layout {
   min-height: 100vh;
 }
 
-.dashboard-title {
-  margin-bottom: var(--space-xs);
+.dashboard-header {
+  border-bottom: 1px solid rgba(2, 52, 48, 0.05);
+  padding-bottom: var(--space-sm);
 }
 
-.accent {
-  color: var(--color-accent);
+.results-list {
+  padding: 0;
 }
-
-.text-muted {
-  color: var(--color-text-muted);
-}
-
-.mb-xl { margin-bottom: var(--space-xl); }
 
 .fade-enter-active,
 .fade-leave-active {

@@ -1,20 +1,9 @@
 <template>
   <div class="quiz-list-container">
-    <div class="list-header flex-between mb-lg">
-      <div>
-        <h2 class="text-h3">Your Quizzes</h2>
-        <p class="text-muted">Manage and monitor your created assessments.</p>
-      </div>
-      <button @click="$emit('create')" class="btn btn-primary flex-center gap-xs">
-        <span>+</span> New Quiz
-      </button>
-    </div>
-
     <div v-if="quizzes.length === 0" class="empty-state text-center animate-slide-up">
       <div class="icon-wrapper mx-auto mb-md">📝</div>
-      <h4 class="text-h4 mb-xs">No Quizzes Yet</h4>
+      <h4 class="text-h4 mb-xs">No Quizzes Available</h4>
       <p class="text-muted mb-md">Get started by creating your first interactive assessment.</p>
-      <button @click="$emit('create')" class="btn btn-outline">Create Quiz</button>
     </div>
 
     <div v-else class="quiz-grid">
@@ -24,20 +13,38 @@
         class="quiz-card animate-slide-up"
         :style="{ animationDelay: `${index * 0.1}s` }"
       >
-        <div class="card-content">
-          <h4 class="quiz-title">{{ quiz.title }}</h4>
-          <p class="quiz-desc text-muted">{{ quiz.description }}</p>
-          <div class="quiz-meta text-body-sm text-secondary mt-sm">
-            <span class="meta-item">🎯 {{ quiz.questions?.length || 0 }} Questions</span>
-          </div>
+        <div class="card-header flex-between mb-sm">
+          <span class="badge badge-medium">
+            {{ quiz.questions?.length || 0 }} Questions
+          </span>
+          <span v-if="authStore.userRole === 'student' && hasTaken(quiz.id)" class="badge badge-success">
+            Completed
+          </span>
         </div>
         
-        <div class="card-actions flex-between" v-if="authStore.userRole === 'teacher'">
-          <button @click="$emit('edit', quiz.id)" class="btn-action edit" :aria-label="`Edit quiz: ${quiz.title}`">Edit</button>
-          <button @click="confirmDelete(quiz.id)" class="btn-action delete" :aria-label="`Delete quiz: ${quiz.title}`">Delete</button>
+        <div class="card-content">
+          <h4 class="quiz-title font-bold mb-xs">{{ quiz.title }}</h4>
+          <p class="quiz-desc text-muted text-sm">{{ quiz.description }}</p>
         </div>
-        <div class="card-actions flex-between" v-else>
-          <button @click="$emit('take', quiz.id)" class="btn-action take" :aria-label="`Take quiz: ${quiz.title}`">Take Quiz</button>
+        
+        <div class="card-footer mt-md pt-sm border-t flex-between">
+          <div class="quiz-meta flex-center gap-xs text-xs text-muted">
+             <span v-if="authStore.userRole === 'student' && getBestScore(quiz.id)">
+               Best: {{ getBestScore(quiz.id) }}%
+             </span>
+          </div>
+          
+          <div class="actions flex-center gap-sm">
+            <template v-if="authStore.userRole === 'teacher'">
+              <button @click="$emit('edit', quiz.id)" class="text-primary font-bold text-xs hover-underline">Edit</button>
+              <button @click="confirmDelete(quiz.id)" class="text-accent font-bold text-xs hover-underline">Delete</button>
+            </template>
+            <template v-else>
+              <button @click="$emit('take', quiz.id)" class="btn btn-primary btn-xs">
+                {{ hasTaken(quiz.id) ? 'Retake' : 'Start' }}
+              </button>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -53,8 +60,18 @@ const emit = defineEmits(['create', 'edit', 'take']);
 const quizStore = useQuizStore();
 const authStore = useAuthStore();
 
-// Reactive list of quizzes from Pinia
 const quizzes = computed(() => quizStore.quizzes);
+const userId = computed(() => authStore.user?.id);
+
+const hasTaken = (quizId) => {
+  return quizStore.results.some(r => r.userId === userId.value && r.quizId === quizId);
+};
+
+const getBestScore = (quizId) => {
+  const results = quizStore.results.filter(r => r.userId === userId.value && r.quizId === quizId);
+  if (results.length === 0) return null;
+  return Math.max(...results.map(r => r.score));
+};
 
 const confirmDelete = (id) => {
   if (confirm('Are you sure you want to delete this quiz? This cannot be undone.')) {
@@ -97,77 +114,66 @@ const confirmDelete = (id) => {
   justify-content: center;
 }
 
+/* Badges */
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-medium {
+  background-color: rgba(0, 201, 177, 0.1);
+  color: var(--color-primary);
+}
+
+.badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
 /* Grid & Cards */
 .quiz-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-md);
 }
 
 .quiz-card {
   background: var(--color-bg-white);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  padding: var(--space-md);
+  border: 1px solid rgba(2, 52, 48, 0.08);
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  border: 1px solid rgba(2, 52, 48, 0.05);
-  overflow: hidden;
+  transition: all var(--transition-fast);
 }
 
 .quiz-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-}
-
-.card-content {
-  padding: var(--space-md);
-  flex-grow: 1;
+  border-color: rgba(0, 201, 177, 0.2);
 }
 
 .quiz-title {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   color: var(--color-primary);
-  margin-bottom: 0.25rem;
 }
 
 .quiz-desc {
-  font-size: 0.9rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.4;
+  margin-top: 0.25rem;
 }
 
-.card-actions {
-  border-top: 1px solid rgba(2, 52, 48, 0.05);
-  background: var(--color-bg-light);
-}
+.border-t { border-top: 1px solid rgba(2, 52, 48, 0.05); }
 
-.btn-action {
-  flex: 1;
-  padding: 0.75rem;
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: background-color var(--transition-fast);
-}
+.hover-underline:hover { text-decoration: underline; }
+.text-primary { color: var(--color-secondary); }
 
-.btn-action.edit {
-  color: var(--color-primary);
-  border-right: 1px solid rgba(2, 52, 48, 0.05);
-}
-
-.btn-action.edit:hover {
-  background: rgba(0, 201, 177, 0.1);
-}
-
-.btn-action.delete {
-  color: var(--color-accent);
-}
-
-.btn-action.delete:hover {
-  background: rgba(255, 107, 74, 0.1);
+.btn-xs {
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
 }
 </style>

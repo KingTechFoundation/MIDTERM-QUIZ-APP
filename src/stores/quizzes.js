@@ -25,9 +25,12 @@ const INITIAL_QUIZZES = [
   }
 ];
 
+const RESULTS_STORAGE_KEY = 'quiz_app_results';
+
 export const useQuizStore = defineStore('quizzes', {
   state: () => ({
     quizzes: JSON.parse(localStorage.getItem(QUIZ_STORAGE_KEY)) || INITIAL_QUIZZES,
+    results: JSON.parse(localStorage.getItem(RESULTS_STORAGE_KEY)) || [],
     selectedQuiz: null,
   }),
   
@@ -35,12 +38,40 @@ export const useQuizStore = defineStore('quizzes', {
     getQuizById: (state) => (id) => {
       return state.quizzes.find(q => q.id === id);
     },
-    totalQuizzes: (state) => state.quizzes.length
+    totalQuizzes: (state) => state.quizzes.length,
+    
+    // Performance Statistics
+    userResults: (state) => (userId) => {
+      return state.results.filter(r => r.userId === userId);
+    },
+    averageScore: (state) => (userId) => {
+      const results = state.results.filter(r => r.userId === userId);
+      if (results.length === 0) return 0;
+      const total = results.reduce((sum, r) => sum + r.score, 0);
+      return Math.round(total / results.length);
+    },
+    totalTaken: (state) => (userId) => {
+      return state.results.filter(r => r.userId === userId).length;
+    }
   },
   
   actions: {
     saveToStorage() {
       localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(this.quizzes));
+    },
+    
+    saveResultToStorage() {
+      localStorage.setItem(RESULTS_STORAGE_KEY, JSON.stringify(this.results));
+    },
+
+    saveResult(result) {
+      const newResult = {
+        ...result,
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString()
+      };
+      this.results.push(newResult);
+      this.saveResultToStorage();
     },
     
     addQuiz(quiz) {

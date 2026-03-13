@@ -169,7 +169,13 @@ const calculateScore = () => {
     }
   });
   score.value = correctCount;
-  emit('complete', { score: score.value, total: props.quiz.questions.length });
+  emit('complete', {
+    quizId: props.quiz.id,
+    quizTitle: props.quiz.title,
+    score: Math.round((correctCount / props.quiz.questions.length) * 100),
+    correct: correctCount,
+    total: props.quiz.questions.length
+  });
 };
 </script>
 
