@@ -100,6 +100,6 @@ Password fields use `type="password"` to prevent shoulder surfing. Furthermore, 
 ---
 
 ##  How to Run
-1.  Clone the repository: `git clone [repository-link]`
+1.  Clone the repository: `git clone [https://github.com/KingTechFoundation/MIDTERM-QUIZ-APP]`
 2.  Install dependencies: `npm install`
 3.  Start dev server: `npm run dev`
