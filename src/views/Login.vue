@@ -1,82 +1,87 @@
 <template>
   <div class="login-page">
-    <div class="login-split">
-      <!-- Left: Decorative / Branding -->
-      <div class="login-brand-panel text-center">
-        <router-link to="/" class="brand mb-md mx-auto inline-flex">
-          <span class="brand-text text-h3 text-white">Quiz<span class="accent">Vista</span></span>
-        </router-link>
-        <h2 class="text-h2 text-white mb-sm">Welcome Back</h2>
-        <p class="text-body-lg text-light opacity-80 mb-lg max-w-sm mx-auto">
-          Sign in to access your dashboard, manage quizzes, or start your next assessment.
-        </p>
+    <div class="container flex-center min-h-screen">
+      <div class="form-card animate-slide-up">
+        <h1 class="text-h1 mb-xl color-primary text-center">{{ isRegister ? 'Create Account' : 'Sign In' }}</h1>
         
-        <div class="login-illustration">
-          <div class="glass-shape shape-1"></div>
-          <div class="glass-shape shape-2"></div>
-          <div class="glass-shape shape-3"></div>
-        </div>
-      </div>
-
-      <!-- Right: Form -->
-      <div class="login-form-panel">
-        <div class="form-container animate-slide-up">
-          <h3 class="text-h3 mb-md color-primary">Sign In</h3>
-          
-          <form @submit.prevent="handleLogin" class="login-form">
-            <div class="form-group">
-              <label for="email">Email Address</label>
-              <input 
-                type="email" 
-                id="email" 
-                v-model="email" 
-                placeholder="teacher@quiz.com or student@quiz.com"
-                required
-                aria-required="true"
-              />
-            </div>
-            
-            <div class="form-group mb-sm">
-              <label for="password">Password</label>
-              <input 
-                type="password" 
-                id="password" 
-                v-model="password" 
-                placeholder="Enter 'password'"
-                required
-                aria-required="true"
-              />
-            </div>
-            
-            <div class="form-options mb-md flex-between">
-              <label class="flex-center gap-xs">
-                <input type="checkbox" id="remember-me" /> 
-                <span>Remember me</span>
-              </label>
-              <a href="#" class="forgot-link">Forgot password?</a>
-            </div>
-
-            <div v-if="authStore.error" class="error-banner mb-sm" role="alert" aria-live="assertive">
-              {{ authStore.error }}
-            </div>
-
-            <button type="submit" class="btn btn-primary w-full" :disabled="authStore.isLoading" aria-live="polite">
-              {{ authStore.isLoading ? 'Signing In...' : 'Sign In' }}
-            </button>
-          </form>
-
-          <div class="divider">
-            <span class="divider-text">or</span>
+        <form @submit.prevent="handleSubmit" class="login-form">
+          <div v-if="isRegister" class="form-group slide-fade">
+            <label for="name">Full Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              v-model="name" 
+              placeholder="Enter your name"
+              required
+            />
           </div>
 
-          <button class="btn btn-secondary w-full create-account-btn" @click="handleCreateAccount">
-            Create Account
-          </button>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              v-model="email" 
+              placeholder="teacher@quiz.com or student@quiz.com"
+              required
+              aria-required="true"
+            />
+          </div>
+          
+          <div class="form-group mb-sm">
+            <label for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              v-model="password" 
+              placeholder="Enter password"
+              required
+              aria-required="true"
+            />
+          </div>
 
-          <p class="mt-lg text-center text-muted text-body-sm">
-            Don't have an account? <a href="#" class="font-bold color-primary" @click.prevent="handleCreateAccount">Contact your administrator</a>
-          </p>
+          <div v-if="isRegister" class="form-group mb-md slide-fade">
+            <label>Join as a:</label>
+            <div class="role-selector flex-center gap-md mt-xs">
+              <label class="radio-label">
+                <input type="radio" value="student" v-model="role" /> Student
+              </label>
+              <label class="radio-label">
+                <input type="radio" value="teacher" v-model="role" /> Teacher
+              </label>
+            </div>
+          </div>
+          
+          <div v-if="!isRegister" class="form-options mb-md flex-between">
+            <label class="flex-center gap-xs">
+              <input type="checkbox" id="remember-me" /> 
+              <span class="text-muted">Remember me</span>
+            </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <div v-if="authStore.error" class="error-banner mb-sm" role="alert" aria-live="assertive">
+            {{ authStore.error }}
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full py-md" :disabled="authStore.isLoading" aria-live="polite">
+            {{ authStore.isLoading ? (isRegister ? 'Creating Account' : 'Signing In...') : (isRegister ? 'Register Now' : 'Sign In') }}
+          </button>
+        </form>
+
+        <div class="separator-container my-lg flex-center">
+          <span class="separator-line"></span>
+          <span class="separator-text">or</span>
+          <span class="separator-line"></span>
         </div>
+
+        <button 
+          type="button" 
+          class="btn btn-outline w-full py-md" 
+          @click="isRegister = !isRegister"
+        >
+          {{ isRegister ? 'Back to Sign In' : 'Create Account' }}
+        </button>
       </div>
     </div>
   </div>
@@ -89,11 +94,20 @@ import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
 const authStore = useAuthStore();
+
+const isRegister = ref(false);
+const name = ref('');
 const email = ref('');
 const password = ref('');
+const role = ref('student');
 
-const handleLogin = async () => {
-  const result = await authStore.login(email.value, password.value);
+const handleSubmit = async () => {
+  let result;
+  if (isRegister.value) {
+    result = await authStore.register(name.value, email.value, password.value, role.value);
+  } else {
+    result = await authStore.login(email.value, password.value);
+  }
   
   if (result.success) {
     if (result.role === 'teacher') {
@@ -103,180 +117,46 @@ const handleLogin = async () => {
     }
   }
 };
-
-const handleCreateAccount = () => {
-  // Navigate to registration page or open registration modal
-  router.push('/register');
-  // Or if you want to keep the existing behavior:
-  // window.location.href = 'mailto:admin@quizvista.com';
-};
 </script>
 
 <style scoped>
 .login-page {
   min-height: 100vh;
   display: flex;
-  background-color: var(--color-bg-light);
-}
-
-.login-split {
-  display: flex;
-  width: 100%;
-}
-
-/* Left Panel */
-.login-brand-panel {
-  flex: 1;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #041f1c 100%);
-  padding: var(--space-xl) var(--space-md);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.brand-text {
-  font-family: var(--font-heading);
-  font-weight: 800;
-}
-
-.accent { color: var(--color-accent); }
-.text-white { color: var(--color-bg-white); }
-.text-light { color: var(--color-bg-light); }
-.opacity-80 { opacity: 0.8; }
-.mb-xs { margin-bottom: var(--space-xs); }
-.mb-sm { margin-bottom: var(--space-sm); }
-.mb-md { margin-bottom: var(--space-md); }
-.mb-lg { margin-bottom: var(--space-lg); }
-.mt-lg { margin-top: var(--space-lg); }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.max-w-sm { max-width: 400px; }
-.inline-flex { display: inline-flex; }
-.w-full { width: 100%; }
-.font-bold { font-weight: 600; }
-.color-primary { color: var(--color-primary); }
-.gap-xs { gap: 0.5rem; }
-
-/* Divider styles */
-.divider {
-  margin: 1.5rem 0;
-  text-align: center;
-  position: relative;
-}
-
-.divider::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: rgba(2, 52, 48, 0.15);
-}
-
-.divider-text {
-  position: relative;
   background-color: var(--color-bg-white);
-  padding: 0 1rem;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
+  padding-top: 80px; /* Offset for fixed navbar */
 }
 
-/* Create account button */
-.create-account-btn {
-  background-color: transparent;
-  border: 2px solid var(--color-secondary);
-  color: var(--color-primary);
-  font-weight: 600;
-  transition: all var(--transition-fast);
-}
+.min-h-screen { min-height: calc(100vh - 80px); }
 
-.create-account-btn:hover {
-  background-color: var(--color-secondary);
-  color: var(--color-bg-white);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 201, 177, 0.3);
-}
-
-/* Abstract Illustration */
-.login-illustration {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.form-card {
   width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
+  max-width: 450px;
+  padding: var(--space-xl);
+  /* Glassmorphism subtle effect */
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
 }
 
-.glass-shape {
-  position: absolute;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(0, 201, 177, 0.2), rgba(2, 52, 48, 0));
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.shape-1 {
-  width: 400px;
-  height: 400px;
-  top: -10%;
-  left: -10%;
-}
-
-.shape-2 {
-  width: 300px;
-  height: 300px;
-  bottom: -5%;
-  right: -5%;
-  background: linear-gradient(135deg, rgba(255, 107, 74, 0.15), rgba(2, 52, 48, 0));
-}
-
-.shape-3 {
-  width: 150px;
-  height: 150px;
-  top: 40%;
-  left: 70%;
-}
-
-.login-brand-panel > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Right Panel */
-.login-form-panel {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-xl) var(--space-md);
-  background-color: var(--color-bg-white);
-}
-
-.form-container {
-  width: 100%;
-  max-width: 420px;
-}
+.mb-xl { margin-bottom: var(--space-xl); }
+.py-md { padding-top: 1rem; padding-bottom: 1rem; }
 
 .form-group {
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
   display: flex;
   flex-direction: column;
 }
 
 .form-group label {
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--color-primary);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  text-transform: capitalize;
 }
 
-.form-group input[type="email"],
-.form-group input[type="password"] {
-  padding: 0.875rem 1rem;
+.form-group input {
+  padding: 1rem;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(2, 52, 48, 0.15);
   font-family: var(--font-body);
@@ -288,18 +168,17 @@ const handleCreateAccount = () => {
 .form-group input:focus {
   outline: none;
   border-color: var(--color-secondary);
-  box-shadow: 0 0 0 3px rgba(0, 201, 177, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 201, 177, 0.1);
   background-color: var(--color-bg-white);
 }
 
 .form-options {
   font-size: 0.875rem;
-  color: var(--color-text-muted);
 }
 
 .forgot-link {
   color: var(--color-primary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .forgot-link:hover {
@@ -324,23 +203,61 @@ const handleCreateAccount = () => {
   75% { transform: translateX(5px); }
 }
 
-@media (max-width: 992px) {
-  .login-split {
-    flex-direction: column;
-  }
-  
-  .login-brand-panel {
-    flex: none;
-    padding: var(--space-lg) var(--space-md);
-  }
-  
-  .login-form-panel {
-    flex: 1;
-    padding: var(--space-lg) var(--space-md);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    margin-top: -2rem; /* Overlap effect */
-    position: relative;
-    z-index: 10;
-  }
+/* Separator */
+.my-lg { margin-top: var(--space-lg); margin-bottom: var(--space-lg); }
+
+.separator-container {
+  width: 100%;
+}
+
+.separator-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: rgba(2, 52, 48, 0.1);
+}
+
+.separator-text {
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(10px);
+  opacity: 0;
+}
+
+/* Role Selector */
+.role-selector {
+  gap: 2rem;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-text-main);
+  transition: color var(--transition-fast);
+}
+
+.radio-label:hover {
+  color: var(--color-secondary);
+}
+
+.radio-label input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-secondary);
+  cursor: pointer;
 }
 </style>
