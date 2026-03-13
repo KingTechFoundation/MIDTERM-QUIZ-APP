@@ -1,8 +1,8 @@
 <template>
   <aside class="sidebar-wrapper">
-    <div class="sidebar-brand p-lg border-b">
+    <div class="sidebar-brand p-md">
       <router-link to="/" class="brand">
-        <span class="brand-text">Quiz<span class="accent">Vista</span></span>
+        <span class="brand-text">QuizVista</span>
       </router-link>
     </div>
 
@@ -15,18 +15,18 @@
         Account
       </div>
       
-      <div class="user-pill flex-center gap-sm p-sm mb-md bg-light radius-md">
+      <div class="user-pill flex-center gap-sm p-sm mb-sm mt-sm">
         <div class="avatar-circle flex-center font-bold">
           {{ userInitial }}
         </div>
-        <div class="user-info flex-grow overflow-hidden">
-          <div class="user-name font-bold text-sm truncate">{{ userName }}</div>
+        <div class="user-info flex-grow">
+          <div class="user-name font-bold text-sm">{{ userName }}</div>
           <div class="user-role text-xs text-muted capitalize">{{ userRole }}</div>
         </div>
       </div>
 
-      <button @click="handleLogout" class="sidebar-logout btn btn-link w-full flex-start">
-        <span class="text-accent font-bold">Log out</span>
+      <button @click="handleLogout" class="sidebar-logout p-sm w-full flex-center">
+        <span class="text-black font-bold">Log out</span>
       </button>
     </nav>
   </aside>
@@ -52,7 +52,9 @@ const handleLogout = () => {
 
 <style scoped>
 .sidebar-brand .brand-text {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  color: #1A1A1A;
+  font-weight: 500;
 }
 
 .sidebar-nav {
@@ -62,52 +64,54 @@ const handleLogout = () => {
 
 .nav-section-label {
   letter-spacing: 0.1em;
-  opacity: 0.6;
+  opacity: 0.5;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 1rem;
 }
 
 .user-pill {
-  border: 1px solid rgba(2, 52, 48, 0.05);
+  border: none;
 }
 
 .avatar-circle {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background-color: var(--color-primary);
+  background-color: #023430;
   color: white;
-  min-width: 32px;
+  min-width: 44px;
+  font-size: 1.25rem;
 }
 
 .sidebar-logout {
-  padding: 0.75rem var(--space-sm);
-  margin-top: auto;
+  margin-top: 0.5rem;
+  cursor: pointer;
 }
 
 .sidebar-logout:hover span {
   text-decoration: underline;
 }
 
+.text-black { color: #000; }
 .text-uppercase { text-transform: uppercase; }
-.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 :deep(.sidebar-nav a) {
   display: block;
-  padding: 0.75rem var(--space-sm);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-main);
-  font-weight: 500;
-  margin-bottom: 2px;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  color: #000;
+  font-weight: 600;
+  margin-bottom: 4px;
   transition: all var(--transition-fast);
+  font-size: 1.1rem;
 }
 
 :deep(.sidebar-nav a:hover) {
-  background-color: var(--color-bg-light);
-  color: var(--color-primary);
+  background-color: rgba(0, 201, 177, 0.05);
 }
 
 :deep(.sidebar-nav a.router-link-active) {
   background-color: rgba(0, 201, 177, 0.1);
-  color: var(--color-primary);
-  font-weight: 600;
+  color: #023430;
 }
 </style>

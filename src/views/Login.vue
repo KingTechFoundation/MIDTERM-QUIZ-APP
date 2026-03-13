@@ -57,7 +57,6 @@
               <input type="checkbox" id="remember-me" /> 
               <span class="text-muted">Remember me</span>
             </label>
-            <a href="#" class="forgot-link">Forgot password?</a>
           </div>
 
           <div v-if="authStore.error" class="error-banner mb-sm" role="alert" aria-live="assertive">
